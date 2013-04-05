@@ -17,10 +17,17 @@ loss.train.e               = [];
 loss.train.e_errfun        = [];
 loss.val.e                 = [];
 loss.val.e_errfun          = [];
-corrfoeff_old              = -999999999;
+
+
+
+%setup batches for training and eval performance
+trainbatches_x = nnevaldata2batches(opts,train_x);
+trainbatches_y = nnevaldata2batches(opts,train_y);
 
 if nargin == 6
     opts.validation = 1;
+    valbatches_x = nnevaldata2batches(opts,val_x);
+    valbatches_y = nnevaldata2batches(opts,val_y);
 else
     opts.validation = 0;
 end
@@ -103,10 +110,13 @@ for i = 1 : numepochs
     
     evalt = tic;
     %after each epoch update losses
+    
+    
+    
     if opts.validation == 1
-        loss = nneval(nn, loss,train_x, train_y, val_x, val_y);
+        loss = nneval_batches(nn, loss,trainbatches_x, trainbatches_y, valbatches_x, valbatches_y);
     else
-        loss = nneval(nn, loss,train_x, train_y);
+        loss = nneval_batches(nn, loss,train_x, train_y);
     end
     
     % plot if figure is available
@@ -128,15 +138,10 @@ for i = 1 : numepochs
         
     %save model after every ten epochs if it is better than the previous
     %saved model
-    if save_nn_flag && mod(i,10) == 0
-       corrfoeff = nnmatthew(nn, val_x, val_y);       
-       
-       if corrfoeff(1) > corrfoeff_old
-            epoch_nr = i;
-            save([opts.outputfolder '.mat'],'nn','opts','epoch_nr','loss');
-            disp(['Saved weights to: ' opts.outputfolder]);
-            corrfoeff_old = corrfoeff(1);
-       end
+    if mod(i,100) == 0 && save_nn_flag     
+        epoch_nr = i;
+        save([opts.outputfolder '_epochnr' numstr(epoch_nr) '.mat'],'nn','opts','epoch_nr','loss');
+        disp(['Saved weights to: ' opts.outputfolder]);
     end
     
 end

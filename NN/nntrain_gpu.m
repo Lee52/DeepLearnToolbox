@@ -26,10 +26,17 @@ dloss.train.e_errfun        = [];
 dloss.val.e                 = [];
 dloss.val.e_errfun          = [];
 
-corrfoeff_old = -999999999;
+
+%divide training set into batches to fit GPU memory (note that the
+    %reamining bathes in the end are ignored
+mval = size(htrain_x, 1);
+htrainbatches_x = nnevaldata2batches(opts,htrain_x);
+htrainbatches_y = nnevaldata2batches(opts,htrain_y);
 
 if nargin == 6
     opts.validation = 1;
+    hvalbatches_x = nnevaldata2batches(opts,hval_x);
+    hvalbatches_y = nnevaldata2batches(opts,hval_y);
 else
     opts.validation = 0;
 end
@@ -116,25 +123,17 @@ for i = 1 : numepochs
         n = n + 1;
     end
     
+    
     t = toc(epochtime);
     evalt = tic;
-    if i==1
-        %draws sample from training data
-        sample = randsample(m,opts.ntrainforeval);
-        dtrain_x = gpuArray(cast(htrain_x(sample,:)));
-        dtrain_y = gpuArray(cast(htrain_y(sample,:)));
-        
-        if opts.validation == 1
-            dval_x = gpuArray(hval_x);
-            dval_y = gpuArray(hval_y);
-        end
-    end   
-    
+   
     %after each epoch update losses
+
+    
     if opts.validation == 1
-        dloss = nneval(dnn, dloss ,dtrain_x, dtrain_y, dval_x, dval_y);
+        dloss = nneval_batches(dnn, dloss ,htrainbatches_x, htrainbatches_y, hvalbatches_x, hvalbatches_y);
     else
-        dloss = nneval(dnn, dloss ,dtrain_x, dtrain_y);
+        dloss = nneval_batches(dnn, dloss ,htrainbatches_x, htrainbatches_y);
     end
        
     % plot if figure is available
@@ -162,14 +161,10 @@ for i = 1 : numepochs
     %save model after every ten epochs if it is better than the previous
     %saved model
     if save_nn_flag && mod(i,10) == 0
-        corrfoeff = nnmatthew(hnn, hval_x, hval_y); 
-        if corrfoeff(1) > corrfoeff_old
-            epoch_nr = i;
-            hloss = cpLossToHost(dloss,opts);
-            save([opts.outputfolder '.mat'],'hnn','opts','epoch_nr','hloss');
-            disp(['Saved weights to: ' opts.outputfolder]);
-            corrfoeff_old = corrfoeff(1);
-        end
+        epoch_nr = i;
+        hloss = cpLossToHost(dloss,opts);
+        save([opts.outputfolder '_epochnr' numstr(epoch_nr) '.mat'],'hnn','opts','epoch_nr','hloss');
+        disp(['Saved weights to: ' opts.outputfolder]);
     end
 end
 
