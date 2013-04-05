@@ -21,18 +21,19 @@ hnn.isGPU = 0; % tell code that variables are not on gpu (this is the HOSTnn)
 
 
 m = size(htrain_x, 1);
-assert(m ~= 0)
+
 if ~isempty(hnn.errfun)   %determine number of returned error values
-  nerrfun =  numel(hnn.errfun(hnn, htrain_x(1,:), htrain_y(1,:)));
-  loss.val.e_errfun          = zeros(opts.numepochs,nerrfun);
-  loss.train.e_errfun        = zeros(opts.numepochs,nerrfun);
+ nerrfun =  numel(hnn.errfun(hnn, htrain_x(1,:), htrain_y(1,:)));
+ dloss.train.e_errfun        = gpuArray.zeros(opts.numepochs,nerrfun);
+ dloss.val.e_errfun          = gpuArray.zeros(opts.numepochs,nerrfun);
 else
-   loss.val.e_errfun          = [];
-  loss.train.e_errfun        = [];  
+dloss.train.e_errfun        = [];
+ dloss.val.e_errfun         = [];
 end
 
-loss.train.e               = zeros(opts.numepochs,1);
-loss.val.e                 = zeros(opts.numepochs,1);
+
+dloss.train.e               = gpuArray.zeros(opts.numepochs,1);
+dloss.val.e                 = gpuArray.zeros(opts.numepochs,1);
 
 
 
