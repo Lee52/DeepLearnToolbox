@@ -151,7 +151,7 @@ for i = 1 : numepochs
     %save model after every 100 epochs
     if save_nn_flag && mod(i,100) == 0
             epoch_nr = i;
-            hloss = cpLossToHost(dloss,opts);
+            hloss = cpLossToHost(dloss,opts);   %used for saving
             hnn = cpNNtoHost(dnn);
             save([opts.outputfolder '_epochnr' num2str(epoch_nr) '.mat'],'hnn','opts','epoch_nr','hloss');
             disp(['Saved weights to: ' opts.outputfolder]);
