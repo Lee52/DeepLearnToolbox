@@ -8,10 +8,7 @@ function spec = specificity(confusion)
 %   __________|_________________
 %   true | pos| 1,1 TP | 1,2 FN
 %   clas | neg| 2,1 FP | 2,2 TN
-fp   = confusion(2,1);
-tn   = confusion(2,2);
-spec = tn / (fp + tn);
-if (fp+tn) ==0
-    spec = 0;
-end
+FP   = confusion(2,1);
+TN   = confusion(2,2);
+spec = TN / (TN + FP);
 end
