@@ -8,7 +8,6 @@ if ~isempty(nn.errfun)   %determine number of returned error values
         loss.val.e_errfun        = [];
     end
     
-    
     [~, ~, opts_out] = nn.errfun(nn, train_x(1,:), train_y(1,:));
     for i = 1:opts.numepochs
         loss.train.opts_out{i} = zeros(size(opts_out));

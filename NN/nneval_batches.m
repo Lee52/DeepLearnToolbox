@@ -72,10 +72,10 @@ if ~isempty(dnn.errfun)
         loss.val.e_errfun(i,:) = opts.errmergefun(opts_out_val, batch_size_val);
     else
        for j = 1:numel(er_train)
-           loss.train.e_errfun(i,:) = loss.train.e_errfun + er_train{j}*(batch_size_train(j)/mtrain);
+           loss.train.e_errfun(i,:) = loss.train.e_errfun(i,:) + er_train{j}*(batch_size_train(j)/mtrain);
        end
        for j = 1:numel(er_val)
-           loss.val.e_errfun(i,:) = loss.val.e_errfun + er_val{j}*(batch_size_val(j)/mval);
+           loss.val.e_errfun(i,:) = loss.val.e_errfun(i,:) + er_val{j}*(batch_size_val(j)/mval);
        end
     end
     

@@ -1,4 +1,4 @@
-function [err, bad,opts_out] = nnsigp(nn, x, y)
+function [err, bad, opts_out] = nnsigp(nn, x, y)
 %NNSIGP Calculate erros for signalP network
 % For a network with 4 output classes in the follwing order the error
 % measure in [...] is calculated and returned:
@@ -54,6 +54,7 @@ err(4) = matthew(confusionmat(:,:,2));   % 4) Cleavage site(2) MCC
 err(5) = matthew(confusionmat(:,:,3));     % 5) transmembrane(3) MCC
 
 opts_out = confusionmat;
+    
 
 
 

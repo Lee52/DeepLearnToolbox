@@ -20,13 +20,12 @@ dnn = cpNNtoGPU(hnn,cast);   % COPY NETWORK TO DEVICE, cpNNtoGPU sets dnn.isGPU 
 m = size(htrain_x, 1);
 
 %divide training set into batches to fit GPU memory
-htrainbatches_x = nnevaldata2batches(opts,htrain_x);
-htrainbatches_y = nnevaldata2batches(opts,htrain_y);
+[htrainbatches_x, htrainbatches_y] = nnevaldata2batches(opts,htrain_x,htrain_y);
+
 
 if nargin == 6
     opts.validation = 1;
-    hvalbatches_x = nnevaldata2batches(opts,hval_x);
-    hvalbatches_y = nnevaldata2batches(opts,hval_y);
+    [hvalbatches_x, hvalbatches_y] = nnevaldata2batches(opts,hval_x,hval_y);
 else
     opts.validation = 0;
 end
@@ -142,8 +141,8 @@ for i = 1 : numepochs
     
     t2 = toc(evalt);
     disp(['epoch ' num2str(i) '/' num2str(opts.numepochs)  ...
-        '. Took ' num2str(t) ' seconds' '. Mean squared error on training set is '...
-        num2str(mean(L((n-numbatches):(n-1))))])
+        '. Took ' num2str(t) ' seconds' '. Mean squared error on training set is: minibatch average: '...
+        num2str(mean(L((n-numbatches):(n-1)))) ', epoch error: ' num2str(dloss.train.e(i))])
     disp(['         Eval time: ' num2str(t2) ...
         '. LearningRate: ', num2str(hnn.learningRate) '.Momentum : ' num2str(hnn.momentum)...
         '. free gpu mem (Gb): ', num2str(gpu.FreeMemory./10^9)]);
@@ -151,7 +150,7 @@ for i = 1 : numepochs
     %save model after every 100 epochs
     if save_nn_flag && mod(i,100) == 0
             epoch_nr = i;
-            hloss = cpLossToHost(dloss,opts);   %used for saving
+            hloss = cpLossToHost(dloss,opts);
             hnn = cpNNtoHost(dnn);
             save([opts.outputfolder '_epochnr' num2str(epoch_nr) '.mat'],'hnn','opts','epoch_nr','hloss');
             disp(['Saved weights to: ' opts.outputfolder]);

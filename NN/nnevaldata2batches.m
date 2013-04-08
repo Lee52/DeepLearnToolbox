@@ -1,4 +1,4 @@
-function batches = nnevaldata2batches(opts,data)
+function [batches_x, batches_y] = nnevaldata2batches(opts,data_x, data_y)
     %Divides train/validation/test set into batches to fit into memory
     %(primarily a concern on gpus).
     
@@ -8,7 +8,7 @@ function batches = nnevaldata2batches(opts,data)
         warning('Use opts.batchsizeforeval instead of opts.ntrainforeval')
     end
     
-    m = size(data,1);
+    m = size(data_x,1);
     
     if isfield(opts, 'batchsizeforeval')
         batch_size = opts.batchsizeforeval;
@@ -24,7 +24,8 @@ function batches = nnevaldata2batches(opts,data)
         end
     end
     
-    batches = cell(1,nbatch);
+    batches_x = cell(1,nbatch);
+    batches_y = cell(1,nbatch);
     idx = randperm(m);
     for i = 1:nbatch
         start_nr = batch_size*(i-1)+1;
@@ -33,8 +34,8 @@ function batches = nnevaldata2batches(opts,data)
             end_nr = m;
         end
 
-        batches{i} = data(idx(start_nr:end_nr),:);
-        batches{i} = data(idx(start_nr:end_nr),:); 
+        batches_x{i} = data_x(idx(start_nr:end_nr),:);
+        batches_y{i} = data_y(idx(start_nr:end_nr),:); 
     end
 
     

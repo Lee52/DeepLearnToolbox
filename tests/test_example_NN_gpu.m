@@ -1,4 +1,4 @@
-function test_example_NN_gpu()
+
 %% TEST_EXAMPLE_NN_GPU
 % demonstrates performance on mnist dataset
 % uses
@@ -45,7 +45,7 @@ test_y  = cast(test_y);
 % normalize
 [train_x, mu, sigma]    = zscore(train_x);
 test_x                  = normalize(test_x, mu, sigma);
-
+clear o* n*
 rng(0);
 nn                          = nnsetup([784 1200 1200 1200 10]);
 nn.output                   = 'softmax'; % output function: softmax | sigm | linear
@@ -57,15 +57,16 @@ nn.weightMaxL2norm          = 15;        % L" norm of incoming weights to each n
 nn.cast                     = @double;   % double or single precision, single cuts memory usage by app. 50%
 nn.caststr                  = 'double';  % double or single precision, single cuts memory usage by app. 50%
 nn.errfun                   = @nntest;
-
+%opts.errmergefun            = @nnsigp_merge;
+opts.batchsizeforeval       = 10000;
+opts.maxevalbatches         = 1;
 opts.plotfun                = @nnplottest;
-opts.numepochs              =  5000;        %  Number of full sweeps through data
+opts.numepochs              =  3000;        %  Number of full sweeps through data
 opts.momentum_variable      = [linspace(0.5,0.95,1500 ) linspace(0.95,0.95,opts.numepochs -1500)];
 opts.learningRate_variable  =  8.*(linspace(0.998,0.998,opts.numepochs ).^linspace(1,opts.numepochs,opts.numepochs ));
 opts.learningRate_variable  = opts.learningRate_variable.*opts.momentum_variable;
 opts.plot                   = 1;            % 0 = no plotting, migth speed up calc if epochs run fast
-opts.batchsize              = 1000;         % Take a mean gradient step over this many samples. GPU note: below 500 is slow on GPU because of memory transfer
-opts.ntrainforeval          = 5000;         % number of training samples that are copied to the gpu and used to evalute training performance
+opts.batchsize              = 100;         % Take a mean gradient step over this many samples. GPU note: below 500 is slow on GPU because of memory transfer
 opts.outputfolder           = 'nns/hinton'; % saves network each 100 epochs and figures after 10. hinton is prefix to the files. 
                                             % nns is the name of a folder
                                             % from where this script is
