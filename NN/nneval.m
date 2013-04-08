@@ -21,12 +21,14 @@ end
 
 %If error function is supplied apply it
 if ~isempty(nn.errfun)
-    [er_train, ~]               = nn.errfun(nn, train_x, train_y);
-    loss.train.e_errfun(i,:)    = er_train;
     
+    [er_train, ~, opts_out]               = nn.errfun(nn, train_x, train_y);
+    loss.train.e_errfun(i,:)    = er_train;
+    loss.train.opts_out{i}      = opts_out;
     if nargin == 7
         [er_val, ~]             = nn.errfun(nn, val_x, val_y);
         loss.val.e_errfun(i,:)  = er_val;
+        loss.val.opts_out{i}    = opts_out;
     end
 end
 

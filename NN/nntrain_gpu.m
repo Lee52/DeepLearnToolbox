@@ -8,15 +8,6 @@ function [hnn, L,hloss]  = nntrain_gpu(hnn, htrain_x, htrain_y, opts, hval_x, hv
 %
 % hVARNAME is a variable on the host
 % dVARNAME is a varibale on the gpu device
-%
-% ####TODO#####
-%
-%  FIX FRAGMENTION OF MEMORY, I.E CLEAR INTERMEDIATE VARIABLES
-%       * SEE http://www.mathworks.se/help/matlab/matlab_prog/strategies-for-efficient-use-of-memory.html
-%       * http://www.mathworks.com/matlabcentral/answers/28500
-%       * A easy fix would be to reset gpu device and reload data every 100
-%       ish epoch.
-%   
 gpu = gpuDevice();
 reset(gpu);
 wait(gpu);
@@ -24,30 +15,23 @@ disp(['GPU memory available (Gb): ', num2str(gpu.FreeMemory / 10^9)]);
 cast = hnn.cast;
 caststr = hnn.caststr;
 assert(nargin == 4 || nargin == 6,'number ofinput arguments must be 4 or 6')
-
-
 hnn.isGPU = 0; % tell code that variables are not on gpu (this is the HOSTnn)
+dnn = cpNNtoGPU(hnn,cast);   % COPY NETWORK TO DEVICE, cpNNtoGPU sets dnn.isGPU = 1
 
+hloss = nnpreallocateloss(hnn,opts,htrain_x,htrain_y);
+dloss = cpLossToGPU(hloss);  %copy preallocated loss struct to gpu
 
 m = size(htrain_x, 1);
 
-if ~isempty(hnn.errfun)   %determine number of returned error values
- nerrfun =  numel(hnn.errfun(hnn, htrain_x(1,:), htrain_y(1,:)));
- dloss.train.e_errfun        = gpuArray.zeros(opts.numepochs,nerrfun);
- dloss.val.e_errfun          = gpuArray.zeros(opts.numepochs,nerrfun);
-else
-dloss.train.e_errfun        = [];
- dloss.val.e_errfun         = [];
-end
 
-
-dloss.train.e               = gpuArray.zeros(opts.numepochs,1);
-dloss.val.e                 = gpuArray.zeros(opts.numepochs,1);
-
-corrfoeff_old = -999999999;
+%divide training set into batches to fit GPU memory
+htrainbatches_x = nnevaldata2batches(opts,htrain_x);
+htrainbatches_y = nnevaldata2batches(opts,htrain_y);
 
 if nargin == 6
     opts.validation = 1;
+    hvalbatches_x = nnevaldata2batches(opts,hval_x);
+    hvalbatches_y = nnevaldata2batches(opts,hval_y);
 else
     opts.validation = 0;
 end
@@ -95,7 +79,6 @@ numbatches = floor(m / batchsize);
 L = zeros(numepochs*numbatches,1);
 n = 1;
               
-dnn = cpNNtoGPU(hnn,cast);   % COPY NETWORK TO DEVICE
 
 
 
@@ -136,23 +119,12 @@ for i = 1 : numepochs
     
     t = toc(epochtime);
     evalt = tic;
-    if i==1
-        %draws sample from training data
-        sample = randsample(m,opts.ntrainforeval);
-        dtrain_x = gpuArray(cast(htrain_x(sample,:)));
-        dtrain_y = gpuArray(cast(htrain_y(sample,:)));
-        
-        if opts.validation == 1
-            dval_x = gpuArray(hval_x);
-            dval_y = gpuArray(hval_y);
-        end
-    end   
     
     %after each epoch update losses
     if opts.validation == 1
-        dloss = nneval(dnn, dloss,i, dtrain_x, dtrain_y, dval_x, dval_y);
+        dloss = nneval_batches(dnn, dloss, i, htrainbatches_x, htrainbatches_y, hvalbatches_x, hvalbatches_y);
     else
-        dloss = nneval(dnn, dloss,i, dtrain_x, dtrain_y);
+        dloss = nneval_batches(dnn, dloss, i, htrainbatches_x, htrainbatches_y);
     end
        
     % plot if figure is available
