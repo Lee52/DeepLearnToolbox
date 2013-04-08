@@ -1,4 +1,4 @@
-function [mcc, bad] = nnmatthew(nn, x, y)
+function [mcc, bad, opts_out] = nnmatthew(nn, x, y)
 %MATTHEW calculate matthew coefficient for all target classes
 %   Calculates the matthew correlation coefficient for all target calasses.
 %   for a n-class classification problem the function returns a n
@@ -39,6 +39,6 @@ for target_class = 1:n_output    % testing: set to four
     mcc(target_class) = matthew(confusionmat(:,:,target_class));
 end
 mcc(n_output+1) = matthew(sum(confusionmat,3));  % calculte mcc for whole dataset
-
+opts_out = confusionmat;
 end
 
