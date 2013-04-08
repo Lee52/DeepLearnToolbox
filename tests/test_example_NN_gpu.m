@@ -1,4 +1,4 @@
-
+function test_example_NN_gpu()
 %% TEST_EXAMPLE_NN_GPU
 % demonstrates performance on mnist dataset
 % uses
