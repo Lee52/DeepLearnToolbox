@@ -29,8 +29,8 @@ x_ax = 1:i;     %create axis
 
 % create training and validation plot
 subplot(n_rows,n_cols,1);
-p = plot(x_ax, L.train.e, 'b', ...
-    x_ax, L.val.e, 'r');
+p = plot(x_ax, L.train.e(x_ax), 'b', ...
+    x_ax, L.val.e(x_ax), 'r');
 legend(p, {'Training', 'Validation'},'Location','SouthWest');
 xlabel('Number of epochs'); ylabel('Error');title('Error');
 set(gca, 'Xlim',[0,opts.numepochs + 1])
@@ -39,8 +39,8 @@ set(gca, 'Xlim',[0,opts.numepochs + 1])
 
 for b = 1:nplots-1
     subplot(n_rows,n_cols,b+1);
-    p = plot(x_ax, L.train.e_errfun(:,b), 'b', ...
-        x_ax, L.val.e_errfun(:,b),   'm');
+    p = plot(x_ax, L.train.e_errfun(x_ax,b), 'b', ...
+        x_ax, L.val.e_errfun(x_ax,b),   'm');
     ylabel(ytitle{b}); xlabel('Epoch'); 
     title(titles{b})
     legend(p, {'Training', 'Validation'},'Location','Best');

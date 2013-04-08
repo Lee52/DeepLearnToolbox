@@ -13,25 +13,24 @@ nn.isGPU = 0; % tell code that variables are not on gpu
 
 m = size(train_x,1);
 assert(m ~= 0)
+if ~isempty(nn.errfun)   %determine number of returned error values
+  nerrfun =  numel(nn.errfun(nn, train_x(1,:), train_y(1,:)));
+  loss.val.e_errfun          = zeros(opts.numepochs,nerrfun);
+  loss.train.e_errfun        = zeros(opts.numepochs,nerrfun);
+else
+   loss.val.e_errfun          = [];
+  loss.train.e_errfun        = [];  
+end
+
+loss.train.e               = zeros(opts.numepochs,1);
+loss.val.e                 = zeros(opts.numepochs,1);
 
 
-% %%%%%%%%%% HACK TO REVERT TO NN EVAL UNTIL BUG in NNEVAL_BATCHS IS FOUND!!!
-% opts.maxevalbatches = 1;
-% 
-% %setup batches for training and eval performance
-% trainbatches_x = nnevaldata2batches(opts,train_x);
-% trainbatches_y = nnevaldata2batches(opts,train_y);
-% 
-% if nargin == 6
-%     opts.validation = 1;
-%     valbatches_x = nnevaldata2batches(opts,val_x);
-%     valbatches_y = nnevaldata2batches(opts,val_y);
-% else
-%     opts.validation = 0;
-% end
-
-%preallocate loss struct
-loss = nnpreallocateloss(nn,opts,train_x,train_y);
+if nargin == 6
+    opts.validation = 1;
+else
+    opts.validation = 0;
+end
 
 
 fhandle = [];
@@ -112,9 +111,9 @@ for i = 1 : numepochs
     evalt = tic;
     %after each epoch update losses
     if opts.validation == 1
-        loss = nneval(nn, loss,i,train_x, train_y, val_x, val_y);
+       loss =  nneval(nn, loss,i,train_x, train_y, val_x, val_y);
     else
-        loss = nneval(nn, loss,i,train_x, train_y);
+       loss = nneval(nn, loss,i,train_x, train_y);
     end
     
     % plot if figure is available
