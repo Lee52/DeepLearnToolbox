@@ -17,12 +17,7 @@ caststr = hnn.caststr;
 assert(nargin == 4 || nargin == 6,'number ofinput arguments must be 4 or 6')
 hnn.isGPU = 0; % tell code that variables are not on gpu (this is the HOSTnn)
 dnn = cpNNtoGPU(hnn,cast);   % COPY NETWORK TO DEVICE, cpNNtoGPU sets dnn.isGPU = 1
-
-hloss = nnpreallocateloss(hnn,opts,htrain_x,htrain_y);
-dloss = cpLossToGPU(hloss);  %copy preallocated loss struct to gpu
-
 m = size(htrain_x, 1);
-
 
 %divide training set into batches to fit GPU memory
 htrainbatches_x = nnevaldata2batches(opts,htrain_x);
@@ -35,6 +30,10 @@ if nargin == 6
 else
     opts.validation = 0;
 end
+
+%initialize loss structs
+hloss = nnpreallocateloss(hnn,opts,htrain_x,htrain_y);
+dloss = cpLossToGPU(hloss, opts);  %copy preallocated loss struct to gpu
 
 
 fhandle = [];
@@ -122,9 +121,9 @@ for i = 1 : numepochs
     
     %after each epoch update losses
     if opts.validation == 1
-        dloss = nneval_batches(dnn, dloss, i, htrainbatches_x, htrainbatches_y, hvalbatches_x, hvalbatches_y);
+        dloss = nneval_batches(dnn, opts, dloss, i, htrainbatches_x, htrainbatches_y, hvalbatches_x, hvalbatches_y);
     else
-        dloss = nneval_batches(dnn, dloss, i, htrainbatches_x, htrainbatches_y);
+        dloss = nneval_batches(dnn, opts, dloss, i, htrainbatches_x, htrainbatches_y);
     end
        
     % plot if figure is available
