@@ -10,11 +10,21 @@
 %
 % Also demonstrates the plotting functionality:
 % You can create your own error functions and plot then.
-% Error function must be of the format: [er, bad] = funname(nn, x, y)
+% Error function must be of the format: [er, bad, opts_out] = funname(nn, x, y)
 %           - bad is a dummy included, set it to []
 %           - err is  1 X D ROW vector of the calculated errors
-%
-% The plotting functino has the format:
+%           - opts_out is a data that might be needed if validation
+%           set/training set has to be split up when evaluated on GPU. e.g
+%           for matthew correlation we need to return the confusion matrix.
+%           
+% Note that if the opts.batchsizeforeval  is set (i.e split the data set when 
+% performance is evaluated, you need to specify a nn.errmergefun). This
+% nn.errmergefun has the signature [err] = funname(opts_out,batch_size), i.e it 
+% takes the opts_out from your supplied error function and merge the
+% results of each validation / training batch and return a 1 x D row vector
+% of merged errors. 
+% 
+% The plotting function has the format:
 %     funname(nn,fhandle,L,opts,i)
 %       i       : number of current epoch
 %       fhandle : handle to the plotting figure
