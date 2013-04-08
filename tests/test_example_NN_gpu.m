@@ -58,33 +58,39 @@ test_x                  = normalize(test_x, mu, sigma);
 clear o* n*
 rng(0);
 nn                          = nnsetup([784 1200 1200 1200 10]);
-nn.output                   = 'softmax'; % output function: softmax | sigm | linear
-nn.activation_function      = 'sigm';    % activation func: sigm | tanh_opt | linear
-nn.dropoutFraction          = 0.5;       % Droupout of hidden layers
-nn.inputZeroMaskedFraction  = 0.2;       % input dropout
-%nn.weightPenaltyL2         = 1e-6;      % weightdecay
-nn.weightMaxL2norm          = 15;        % L" norm of incoming weights to each neuron are constrined to be below this value, rescaled if above
-nn.cast                     = @double;   % double or single precision, single cuts memory usage by app. 50%
-nn.caststr                  = 'double';  % double or single precision, single cuts memory usage by app. 50%
-nn.errfun                   = @nntest;
-%opts.errmergefun            = @nnsigp_merge;
-opts.batchsizeforeval       = 10000;
-opts.maxevalbatches         = 1;
-opts.plotfun                = @nnplottest;
-opts.numepochs              =  3000;        %  Number of full sweeps through data
+nn.output                   = 'softmax';        % output function: softmax | sigm | linear
+nn.activation_function      = 'sigm';           % activation func: sigm | tanh_opt | linear
+nn.dropoutFraction          = 0.5;              % Droupout of hidden layers
+nn.inputZeroMaskedFraction  = 0.2;              % input dropout
+%nn.weightPenaltyL2         = 1e-6;             % weightdecay
+nn.weightMaxL2norm          = 15;               % L" norm of incoming weights to each neuron are constrined to be below this value, rescaled if above
+nn.cast                     = @double;          % double or single precision, single cuts memory usage by app. 50%
+nn.caststr                  = 'double';         % double or single precision, single cuts memory usage by app. 50%
+nn.errfun                   = @nntest;          % The error function used
+%opts.errmergefun            = @nnsigp_merge;   % merges errors if split.
+opts.batchsizeforeval       = 10000;            % the number of evalution samples used after each epoch
+opts.maxevalbatches         = 1;                % number of minibathes the evalution data is split into. Increase to lower memory usage
+opts.plotfun                = @nnplottest;      % plotting function.
+opts.numepochs              =  3000;            %  Number of full sweeps through data
+
+% Specify the learningrate and momentum for all epochs. Both must be 
+% 1 x numepochs row vectors. This example increases momentum and decrease
+% learning rate as described in hinton 2012 (dropout paper)
 opts.momentum_variable      = [linspace(0.5,0.95,1500 ) linspace(0.95,0.95,opts.numepochs -1500)];
 opts.learningRate_variable  =  8.*(linspace(0.998,0.998,opts.numepochs ).^linspace(1,opts.numepochs,opts.numepochs ));
 opts.learningRate_variable  = opts.learningRate_variable.*opts.momentum_variable;
-opts.plot                   = 1;            % 0 = no plotting, migth speed up calc if epochs run fast
-opts.batchsize              = 100;         % Take a mean gradient step over this many samples. GPU note: below 500 is slow on GPU because of memory transfer
-opts.outputfolder           = 'nns/hinton'; % saves network each 100 epochs and figures after 10. hinton is prefix to the files. 
-                                            % nns is the name of a folder
-                                            % from where this script is
-                                            % called (probably tests/nns)
-                                        
-
+opts.plot                   = 1;                 % 0 = no plotting, migth speed up calc if epochs run fast
+opts.batchsize              = 100;               % Take a mean gradient step over this many samples. GPU note: below 500 is slow on GPU because of memory transfer
+opts.outputfolder           = 'nns/hinton';      % saves network each 100 epochs and figures after 10. hinton is prefix to the files. 
+                                                 % nns is the name of a folder
+                                                 % from where this script is
+                                                 % called (probably tests/nns)
+                                                                                
 tt = tic;
-[nn,L,loss]                 = nntrain_gpu(nn, train_x, train_y, opts,test_x,test_y); %use nntrain to train on cpu
+
+%use nntrain to train on cpu. This is an example - in real application use
+% validation data as arguemtn 6 and 7. 
+[nn,L,loss]                 = nntrain_gpu(nn, train_x, train_y, opts,test_x,test_y); 
 toc(tt);
-[er_gpu, bad]               = nntest(nn, test_x, test_y);    
+[er_gpu, bad]               = nntest(nn, test_x, test_y);    %evaluate performance. 
 fprintf('Error: %f \n',er_gpu);
