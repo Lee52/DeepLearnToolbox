@@ -37,6 +37,9 @@ for i=1:numel(fld)
             end
         case 'isGPU'
             hnn.(fieldName) = 0;
+        case 'dropoutMaske'
+            dummy = 0; % do nothing
+            
         otherwise
             hnn.(fieldName) = gather(dnn.(fieldName));
             
