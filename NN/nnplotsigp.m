@@ -31,7 +31,7 @@ x_ax = 1:i;     %create axis
 subplot(n_rows,n_cols,1);
 p = plot(x_ax, L.train.e(x_ax), 'b', ...
     x_ax, L.val.e(x_ax), 'r');
-legend(p, {'Training', 'Validation'},'Location','SouthWest');
+legend(p, {'Training', 'Validation'},'Location','NorthEast');
 xlabel('Number of epochs'); ylabel('Error');title('Error');
 set(gca, 'Xlim',[0,opts.numepochs + 1])
 %create subplots of correlations
@@ -43,7 +43,7 @@ for b = 1:nplots-1
         x_ax, L.val.e_errfun(x_ax,b),   'm');
     ylabel(ytitle{b}); xlabel('Epoch'); 
     title(titles{b})
-    legend(p, {'Training', 'Validation'},'Location','Best');
+    legend(p, {'Training', 'Validation'},'Location','SouthEast');
     set(gca, 'Xlim',[0,opts.numepochs + 1])
     
 end

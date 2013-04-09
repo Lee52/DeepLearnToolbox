@@ -7,3 +7,13 @@ tests/testout/hinton_epochnr5.mat
 tests/testout/hinton.png
 tests/testout/hinton.fig
 /files.zip
+
+tests/nns/hinton_epochnr2700_my.mat
+
+tests/nns/hinton_epochnr2800_my.mat
+
+tests/nns/hinton_epochnr3000_my.mat
+
+tests/nns/hinton_epochnr4800.mat
+
+tests/nns/plots.m
