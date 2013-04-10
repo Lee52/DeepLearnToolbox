@@ -11,7 +11,7 @@ n_cols = 4.0;
 n_rows = ceil(nplots / n_cols);
 
 titles{1} = 'Signal peptide MCC';
-titles{2} = 'Cleavage site specifity';
+titles{2} = 'Cleavage site Sensitivity';
 titles{3} = 'Cleavage site precision';
 titles{4} = 'Cleavage site MCC';
 titles{5} = 'Transmembrane MCC';
