@@ -17,8 +17,8 @@ titles{4} = 'Cleavage site MCC';
 titles{5} = 'Transmembrane MCC';
 
 ytitle{1} = 'MCC';
-ytitle{2} = 'Specificity';
-ytitle{3} = 'Sensitivity';
+ytitle{2} = 'Sensitivity';
+ytitle{3} = 'Precision';
 ytitle{4} = 'MCC';
 ytitle{5} = 'MCC';
 
