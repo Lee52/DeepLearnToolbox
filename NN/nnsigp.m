@@ -3,12 +3,12 @@ function [err, bad, opts_out] = nnsigp(nn, x, y)
 % For a network with 4 output classes in the follwing order the error
 % measure in [...] is calculated and returned:
 %       1) signalpeptide (S)    [MCC]
-%       2) cleavage site (C)    [Specificity , precision, MCC]
+%       2) cleavage site (C)    [sensitivity , precision, MCC]
 %       3) transmembrane (T)    [MCC]
 %       4) other         (.)    No error calculated
 % The errors are returned in the following order
 %       1) signalpeptide MCC
-%       2) Cleavage site specificity
+%       2) Cleavage site sensitivity
 %       3) Cleavage site precision
 %       4) Cleacage site MCC
 %       5) transmembrane MCC
