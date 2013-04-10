@@ -1,11 +1,12 @@
 function nnplotsigp(nn,fhandle,L,opts,i)
 %NNPLOTSIGP to be used with nnsigp
 %      1) signalpeptide MCC
-%       2) Cleavage site specificity
+%       2) Cleavage site sensitivity
 %       3) Cleavage site precision
 %       4) Cleacage site MCC
 %       5) transmembrane MCC
 %
+
 nplots = size(L.train.e_errfun,2)+1;
 n_cols = 4.0;
 n_rows = ceil(nplots / n_cols);
