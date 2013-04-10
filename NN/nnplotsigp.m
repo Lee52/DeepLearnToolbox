@@ -18,7 +18,7 @@ titles{5} = 'Transmembrane MCC';
 
 ytitle{1} = 'MCC';
 ytitle{2} = 'Specificity';
-ytitle{3} = 'Precision';
+ytitle{3} = 'Sensitivity';
 ytitle{4} = 'MCC';
 ytitle{5} = 'MCC';
 
