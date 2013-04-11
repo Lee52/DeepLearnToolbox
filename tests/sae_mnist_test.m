@@ -17,13 +17,13 @@ test_y  = cast(test_y);
 [train_x, mu, sigma]    = zscore(train_x);
 test_x                  = normalize(test_x, mu, sigma);
 
-layers = [100 100 100];
+layers = [400 400 400];
 rng(0);
 sae = saesetup([784 layers]);
 sae.ae{1}.activation_function       = 'sigm';
 sae.ae{1}.learningRate              = 1;
 sae.ae{1}.inputZeroMaskedFraction   = 0.5;
-sae.ae{1}.weightMaxL2norm          = 15;        % L" norm of incoming weights to each neuron are constrined to be below this value, rescaled if above
+sae.ae{1}.weightMaxL2norm          = 10;        % L" norm of incoming weights to each neuron are constrined to be below this value, rescaled if above
 sae.ae{1}.cast                     = @double;   % double or single precision, single cuts memory usage by app. 50%
 sae.ae{1}.caststr                  = 'double';  % double or single precision, single cuts memory usage by app. 50%
 sae.ae{1}.errfun                   = @nntest;
@@ -48,18 +48,16 @@ sae.ae{3}.errfun                   = @nntest;
 
 
 opts.plotfun = @nnupdatefigures;
-opts.numepochs = 100;
+opts.numepochs = 26;
 opts.batchsize = 100;
 %opts.momentum_variable      = [linspace(0.5,0.95,1500 ) linspace(0.95,0.95,opts.numepochs -1500)];
 %opts.learningRate_variable  =  8.*(linspace(0.998,0.998,opts.numepochs ).^linspace(1,opts.numepochs,opts.numepochs ));
 %opts.learningRate_variable  = opts.learningRate_variable.*opts.momentum_variable;
 opts.learningRate_variable  =  (linspace(10,0.2,opts.numepochs ));
-opts.momentum_variable      = [linspace(0.5,0.8,3 ) linspace(0.8,0.8,2)];
-
-
-opts.plot                   = 1;            % 0 = no plotting, migth speed up calc if epochs run fast
+opts.momentum_variable      = [linspace(0.5,0.8,opts.numepochs/2 ) linspace(0.8,0.8,opts.numepochs/2)];
 opts.ntrainforeval          = 5000;         % number of training samples that are copied to the gpu and used to evalute training performance
-                                        
+opts.maxevalbatches         = 1;
+opts.batchsizeforeval       = 10000;
 sae = saetrain(sae, train_x, opts);
 
 
