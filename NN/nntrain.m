@@ -24,8 +24,8 @@ assert(m ~= 0)
 
 if nargin == 6
     opts.validation = 1;
-    valbatches_x = nnevaldata2batches(opts,val_x);
-    valbatches_y = nnevaldata2batches(opts,val_y);
+%    valbatches_x = nnevaldata2batches(opts,val_x);
+%    valbatches_y = nnevaldata2batches(opts,val_y);
 else
     opts.validation = 0;
 end
