@@ -17,3 +17,11 @@ tests/nns/hinton_epochnr3000_my.mat
 tests/nns/hinton_epochnr4800.mat
 
 tests/nns/plots.m
+
+tests/nns/sae.eps
+
+tests/nns/sae.fig
+
+tests/nns/sae.png
+
+tests/untitled.fig
