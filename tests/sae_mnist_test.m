@@ -17,31 +17,28 @@ test_y  = cast(test_y);
 [train_x, mu, sigma]    = zscore(train_x);
 test_x                  = normalize(test_x, mu, sigma);
 
-layers = [400 400 400];
+layers = [100 100 100];
 rng(0);
 sae = saesetup([784 layers]);
 sae.ae{1}.activation_function       = 'sigm';
-sae.ae{1}.learningRate              = 1;
 sae.ae{1}.inputZeroMaskedFraction   = 0.5;
-sae.ae{1}.weightMaxL2norm          = 10;        % L" norm of incoming weights to each neuron are constrined to be below this value, rescaled if above
+sae.ae{1}.weightMaxL2norm          = 15;        % L" norm of incoming weights to each neuron are constrined to be below this value, rescaled if above
 sae.ae{1}.cast                     = @double;   % double or single precision, single cuts memory usage by app. 50%
 sae.ae{1}.caststr                  = 'double';  % double or single precision, single cuts memory usage by app. 50%
 sae.ae{1}.errfun                   = @nntest;
-
+visualize(sae.ae{1}.W{1}');
 
 sae.ae{2}.activation_function       = 'sigm';
-sae.ae{2}.learningRate              = 1;
 sae.ae{2}.inputZeroMaskedFraction   = 0.5;
-sae.ae{2}.weightMaxL2norm          = 10;        % L" norm of incoming weights to each neuron are constrined to be below this value, rescaled if above
+sae.ae{2}.weightMaxL2norm          = 15;        % L" norm of incoming weights to each neuron are constrined to be below this value, rescaled if above
 sae.ae{2}.cast                     = @double;   % double or single precision, single cuts memory usage by app. 50%
 sae.ae{2}.caststr                  = 'double';  % double or single precision, single cuts memory usage by app. 50%
 sae.ae{2}.errfun                   = @nntest;
 
 
 sae.ae{3}.activation_function       = 'sigm';
-sae.ae{3}.learningRate              = 1;
 sae.ae{3}.inputZeroMaskedFraction   = 0.5;
-sae.ae{3}.weightMaxL2norm          = 10;        % L" norm of incoming weights to each neuron are constrined to be below this value, rescaled if above
+sae.ae{3}.weightMaxL2norm          = 15;        % L" norm of incoming weights to each neuron are constrined to be below this value, rescaled if above
 sae.ae{3}.cast                     = @double;   % double or single precision, single cuts memory usage by app. 50%
 sae.ae{3}.caststr                  = 'double';  % double or single precision, single cuts memory usage by app. 50%
 sae.ae{3}.errfun                   = @nntest;
