@@ -9,7 +9,8 @@ function nn = dbnunfoldtonn(dbn, outputsize)
     end
     nn = nnsetup(size);
     for i = 1 : numel(dbn.rbm)
-        nn.W{i} = [dbn.rbm{i}.c dbn.rbm{i}.W];
+        nn.W{i} = dbn.rbm{i}.W;
+        nn.b{i} = dbn.rbm{i}.c;
     end
 end
 
