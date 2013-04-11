@@ -19,8 +19,8 @@ assert(m ~= 0)
 % opts.maxevalbatches = 1;
 % 
 %setup batches for training and eval performance
-trainbatches_x = nnevaldata2batches(opts,train_x);
-trainbatches_y = nnevaldata2batches(opts,train_y);
+%trainbatches_x = nnevaldata2batches(opts,train_x);
+%trainbatches_y = nnevaldata2batches(opts,train_y);
 
 if nargin == 6
     opts.validation = 1;
