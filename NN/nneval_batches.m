@@ -8,7 +8,8 @@ else
 end
 
 nbatch_train = length(htrain_x);
-nbatch_val = length(hval_x);
+
+
 
 mtrain = 0;
 for j=1:nbatch_train
@@ -16,12 +17,14 @@ for j=1:nbatch_train
     mtrain = mtrain+length(htrain_x{j});
 end
 
+if nargin == 8
 mval = 0;
+nbatch_val = length(hval_x);
 for j=1:nbatch_val
     batch_size_val(j) = length(hval_x{j});
     mval = mval+length(hval_x{j});
 end
-
+end
 Ltrain = 0;
 Lval = 0;
 
@@ -58,7 +61,7 @@ if ~isempty(dnn.errfun)
           opts_out_train{j}     = opts_out;
           er_train{j} = et;
     end
-    
+if nargin == 8    
     for j = 1:nbatch_val
         if nargin == 8
               [et, ~, opts_out]     = dnn.errfun(dnn, hval_x{j}, hval_y{j});
@@ -66,7 +69,7 @@ if ~isempty(dnn.errfun)
               er_val{j} = et;
         end
     end
-    
+end 
     if isfield(opts, 'errmergefun') && ~isempty(opts.errmergefun)
         loss.train.e_errfun(i,:) = opts.errmergefun(opts_out_train, batch_size_train);
         loss.val.e_errfun(i,:) = opts.errmergefun(opts_out_val, batch_size_val);
@@ -74,9 +77,11 @@ if ~isempty(dnn.errfun)
        for j = 1:numel(er_train)
            loss.train.e_errfun(i,:) = loss.train.e_errfun(i,:) + er_train{j}*(batch_size_train(j)/mtrain);
        end
+    if nargin == 8
        for j = 1:numel(er_val)
            loss.val.e_errfun(i,:) = loss.val.e_errfun(i,:) + er_val{j}*(batch_size_val(j)/mval);
        end
+    end
     end
     
 end
