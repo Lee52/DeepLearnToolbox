@@ -1,10 +1,13 @@
 %% ex2 train a 100-100 hidden unit SDAE and use it to initialize a FFNN
 %  Setup and train a stacked denoising autoencoder (SDAE)
+clear *
 addpath('../data');
 addpath('../util');
 addpath('../NN');
 addpath('../SAE');
+
 load mnist_uint8;
+
 close all
 cast = @double;
 
@@ -17,7 +20,7 @@ test_y  = cast(test_y);
 [train_x, mu, sigma]    = zscore(train_x);
 test_x                  = normalize(test_x, mu, sigma);
 
-layers = [100 100 100];
+layers = [500 500 500];
 rng(0);
 sae = saesetup([784 layers]);
 sae.ae{1}.activation_function       = 'sigm';
@@ -45,17 +48,16 @@ sae.ae{3}.errfun                   = @nntest;
 
 
 opts.plotfun = @nnupdatefigures;
-opts.numepochs = 26;
+opts.numepochs = 100;
 opts.batchsize = 100;
 %opts.momentum_variable      = [linspace(0.5,0.95,1500 ) linspace(0.95,0.95,opts.numepochs -1500)];
 %opts.learningRate_variable  =  8.*(linspace(0.998,0.998,opts.numepochs ).^linspace(1,opts.numepochs,opts.numepochs ));
 %opts.learningRate_variable  = opts.learningRate_variable.*opts.momentum_variable;
 opts.learningRate_variable  =  (linspace(10,0.2,opts.numepochs ));
 opts.momentum_variable      = [linspace(0.5,0.8,opts.numepochs/2 ) linspace(0.8,0.8,opts.numepochs/2)];
-opts.ntrainforeval          = 5000;         % number of training samples that are copied to the gpu and used to evalute training performance
-opts.maxevalbatches         = 1;
+opts.maxevalbatches         = 11;
 opts.batchsizeforeval       = 10000;
-sae = saetrain(sae, train_x, opts);
+sae = saetrain_gpu(sae, train_x, opts);
 
 
 
@@ -81,23 +83,21 @@ nn.caststr                  = 'double';  % double or single precision, single cu
 nn.errfun                   = @nntest;
 
 opts.plotfun                = @nnplottest;
-opts.numepochs              =  5000;        %  Number of full sweeps through data
+opts.numepochs              = 1500;        %  Number of full sweeps through data
 opts.momentum_variable      = linspace(0.5,0.8,opts.numepochs);
 opts.learningRate_variable  =  1*(linspace(0.998,0.1,opts.numepochs ));
 opts.learningRate_variable  = opts.learningRate_variable.*opts.momentum_variable;
 opts.plot                   = 1;            % 0 = no plotting, migth speed up calc if epochs run fast
 opts.batchsize              = 100;         % Take a mean gradient step over this many samples. GPU note: below 500 is slow on GPU because of memory transfer
-opts.ntrainforeval          = 5000;         % number of training samples that are copied to the gpu and used to evalute training performance
+opts.batchsizeforeval       = 10000;         % number of training samples that are copied to the gpu and used to evalute training performance
+opts.maxevalbatches         = 11;
 opts.outputfolder           = 'nns/sae'; % saves network each 100 epochs and figures after 10. hinton is prefix to the files. 
                                             % nns is the name of a folder
                                             % from where this script is
                                             % called (probably tests/nns)
                                         
 tt = tic;
-[nn,L,loss]                 = nntrain(nn, train_x, train_y, opts,test_x,test_y); %use nntrain to train on cpu
+[nn,L,loss]                 = nntrain_gpu(nn, train_x, train_y, opts,test_x,test_y); %use nntrain to train on cpu
 toc(tt);
 [er_gpu, bad]               = nntest(nn, test_x, test_y);    
 fprintf('Error: %f \n',er_gpu);
-
-
-
