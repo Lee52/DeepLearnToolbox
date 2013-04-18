@@ -18,7 +18,7 @@ assert(nargin == 4 || nargin == 6,'number ofinput arguments must be 4 or 6')
 hnn.isGPU = 0; % tell code that variables are not on gpu (this is the HOSTnn)
 dnn = cpNNtoGPU(hnn,cast);   % COPY NETWORK TO DEVICE, cpNNtoGPU sets dnn.isGPU = 1
 m = size(htrain_x, 1);
-spec_prec_mean = 0;
+spec_prec_mean_old = 0;
 
 %divide training set into batches to fit GPU memory
 [htrainbatches_x, htrainbatches_y] = nnevaldata2batches(opts,htrain_x,htrain_y);
