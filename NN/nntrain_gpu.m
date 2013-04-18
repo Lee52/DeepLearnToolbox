@@ -18,6 +18,7 @@ assert(nargin == 4 || nargin == 6,'number ofinput arguments must be 4 or 6')
 hnn.isGPU = 0; % tell code that variables are not on gpu (this is the HOSTnn)
 dnn = cpNNtoGPU(hnn,cast);   % COPY NETWORK TO DEVICE, cpNNtoGPU sets dnn.isGPU = 1
 m = size(htrain_x, 1);
+spec_prec_mean = 0;
 
 %divide training set into batches to fit GPU memory
 [htrainbatches_x, htrainbatches_y] = nnevaldata2batches(opts,htrain_x,htrain_y);
@@ -118,16 +119,18 @@ for i = 1 : numepochs
     t = toc(epochtime);
     evalt = tic;
     
+
     %after each epoch update losses
     if opts.validation == 1
         dloss = nneval_batches(dnn, opts, dloss, i, htrainbatches_x, htrainbatches_y, hvalbatches_x, hvalbatches_y);
     else
         dloss = nneval_batches(dnn, opts, dloss, i, htrainbatches_x, htrainbatches_y);
     end
-       
+    
+    hloss = cpLossToHost(dloss,opts);
+
     % plot if figure is available
     if ishandle(fhandle)
-        hloss = cpLossToHost(dloss,opts);
         opts.plotfun([], fhandle, hloss, opts, i);
         
         
@@ -150,11 +153,22 @@ for i = 1 : numepochs
     %save model after every 100 epochs
     if save_nn_flag && mod(i,100) == 0
             epoch_nr = i;
-            hloss = cpLossToHost(dloss,opts);
             hnn = cpNNtoHost(dnn);
             save([opts.outputfolder '_epochnr' num2str(epoch_nr) '.mat'],'hnn','opts','epoch_nr','hloss');
             disp(['Saved weights to: ' opts.outputfolder]);
     end
+
+    current_err =  L.val.e_errfun(i,:)
+    spec_prec_mean = (current_err(2)+current_err(3))/2
+    %save model efter it have the best performance
+    if save_nn_flag && (current_err(4) > 0.6 && current_err(5) > 0.75 && spec_prec_mean > 0.6 && spec_prec_mean > spec_prec_mean_old)
+            epoch_nr = i;
+            spec_prec_mean_old = spec_prec_mean;
+            hnn = cpNNtoHost(dnn);
+            save([opts.outputfolder  '_best.mat'],'hnn','opts','epoch_nr','hloss');
+            disp(['Saved new best weights to: ' opts.outputfolder]);
+    end
+
 end
 
 % get network from gpu
