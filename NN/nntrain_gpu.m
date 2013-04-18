@@ -158,8 +158,8 @@ for i = 1 : numepochs
             disp(['Saved weights to: ' opts.outputfolder]);
     end
 
-    current_err =  L.val.e_errfun(i,:)
-    spec_prec_mean = (current_err(2)+current_err(3))/2
+    current_err =  hloss.val.e_errfun(i,:);
+    spec_prec_mean = (current_err(2)+current_err(3))/2;
     %save model efter it have the best performance
     if save_nn_flag && (current_err(4) > 0.6 && current_err(5) > 0.75 && spec_prec_mean > 0.6 && spec_prec_mean > spec_prec_mean_old)
             epoch_nr = i;
