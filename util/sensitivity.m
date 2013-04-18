@@ -5,7 +5,8 @@ function sens = sensitivity(confusion)
 %                preduction
 %  ____________________________
 %             |   pos     neg
-%   __________|_________________
+%             |   predictions
+%________ ____|_________________
 %   true | pos| 1,1 TP | 1,2 FN
 %   clas | neg| 2,1 FP | 2,2 TN
 TP   = confusion(1,1);
