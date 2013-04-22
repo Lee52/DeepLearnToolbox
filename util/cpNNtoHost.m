@@ -37,7 +37,7 @@ for i=1:numel(fld)
             end
         case 'isGPU'
             hnn.(fieldName) = 0;
-        case 'dropoutMask'
+        case 'dropOutMask'
             dummy = 0; % do nothing
             
         otherwise
