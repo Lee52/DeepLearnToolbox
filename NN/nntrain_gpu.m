@@ -18,7 +18,14 @@ assert(nargin == 4 || nargin == 6,'number ofinput arguments must be 4 or 6')
 hnn.isGPU = 0; % tell code that variables are not on gpu (this is the HOSTnn)
 dnn = cpNNtoGPU(hnn,cast);   % COPY NETWORK TO DEVICE, cpNNtoGPU sets dnn.isGPU = 1
 m = size(htrain_x, 1);
-spec_prec_mean_old = 0;
+
+%variables for saving the networks
+sens05_prec05_mean_old = 0;
+sens066_prec033_mean_old = 0;
+sens033_prec066_mean_old = 0;
+spMCC_old = 0;
+ccMCC_old = 0;
+tmMCC_old = 0;
 
 %divide training set into batches to fit GPU memory
 [htrainbatches_x, htrainbatches_y] = nnevaldata2batches(opts,htrain_x,htrain_y);
@@ -151,22 +158,81 @@ for i = 1 : numepochs
         '. free gpu mem (Gb): ', num2str(gpu.FreeMemory./10^9)]);
     
     %save model after every 100 epochs
-    if save_nn_flag && mod(i,100) == 0
-            epoch_nr = i;
-            hnn = cpNNtoHost(dnn);
-            save([opts.outputfolder '_epochnr' num2str(epoch_nr) '.mat'],'hnn','opts','epoch_nr','hloss');
-            disp(['Saved weights to: ' opts.outputfolder]);
-    end
+    %if save_nn_flag && mod(i,100) == 0
+    %        epoch_nr = i;
+    %        hnn = cpNNtoHost(dnn);
+    %        save([opts.outputfolder '_epochnr' num2str(epoch_nr) '.mat'],'hnn','opts','epoch_nr','hloss');
+    %        disp(['Saved weights to: ' opts.outputfolder]);
+    %end
+
+
+    
+    %save model efter it have the best performance- use several different cirterias 
+    %1) signalpeptide MCC  2) Cleavage site sensitivity   3) Cleavage site precision   4) Cleacage site MCC 5) transmembrane MCC
+    %ALL fulfill: Cleacage site MCC > 0.6, transmembrane MCC > 0.75, sens05_prec05_mean > 0.6 
+    %1# mean(CC prec + CC sens ) better than previous saved model
 
     current_err =  hloss.val.e_errfun(i,:);
-    spec_prec_mean = (current_err(2)+current_err(3))/2;
-    %save model efter it have the best performance
-    if save_nn_flag && (current_err(4) > 0.6 && current_err(5) > 0.75 && spec_prec_mean > 0.6 && spec_prec_mean > spec_prec_mean_old)
+    current_spMCC = current_err(1);
+    current_ccsens = current_err(2);
+    current_ccprec = current_err(3);
+    current_ccMCC = current_err(4);
+    current_tmMCC = current_err(5); 
+    
+    sens05_prec05_mean = 0.5*current_ccsens+0.5*current_ccprec;
+    sens033_prec066_mean = (1/3)*current_ccsens+(2/3)*current_ccprec2;
+    sens066_prec033_mean = (2/3)*current_ccsens+(1/3)*current_ccprec2;
+
+    
+    if save_nn_flag && (current_err(4) > 0.6 && current_err(5) > 0.75 && sens05_prec05_mean > 0.6 %criteria that all "best" models fulfill
+        if sens05_prec05_mean > sens05_prec05_mean_old
             epoch_nr = i;
-            spec_prec_mean_old = spec_prec_mean;
+            sens05_prec05_mean_old = sens05_prec05_mean;
             hnn = cpNNtoHost(dnn);
-            save([opts.outputfolder  '_best.mat'],'hnn','opts','epoch_nr','hloss');
+            save([opts.outputfolder  '_best_05sens_05prec.mat'],'hnn','opts','epoch_nr','hloss');
             disp(['Saved new best weights to: ' opts.outputfolder]);
+        end
+       
+        if sens066_prec033_mean > sens066_prec033_mean_old
+            epoch_nr = i;
+            sens066_prec033_mean_old = sens066_prec033_mean;
+            hnn = cpNNtoHost(dnn);
+            save([opts.outputfolder  '_best_066sens_033prec.mat'],'hnn','opts','epoch_nr','hloss');
+            disp(['Saved new best weights to: ' opts.outputfolder]);
+        end
+        
+        if sens033_prec066_mean > sens033_prec066_mean_old
+            epoch_nr = i;
+            sens033_prec066_mean_old = sens033_prec066_mean;
+            hnn = cpNNtoHost(dnn);
+            save([opts.outputfolder  '_best_033sens_066prec.mat'],'hnn','opts','epoch_nr','hloss');
+            disp(['Saved new best weights to: ' opts.outputfolder]);
+        end
+       
+        if current_spMCC > spMCC_old
+            epoch_nr = i;
+            spMCC_old = current_spMCC;
+            hnn = cpNNtoHost(dnn);
+            save([opts.outputfolder  '_best_spMCC.mat'],'hnn','opts','epoch_nr','hloss');
+            disp(['Saved new best weights to: ' opts.outputfolder]);
+        end
+       
+        if current_ccMCC > ccMCC_old
+            epoch_nr = i;
+            ccMCC_old = current_ccMCC;
+            hnn = cpNNtoHost(dnn);
+            save([opts.outputfolder  '_best_ccMCC.mat'],'hnn','opts','epoch_nr','hloss');
+            disp(['Saved new best weights to: ' opts.outputfolder]);
+       end
+       
+       if current_tmMCC > tmMCC_old
+            epoch_nr = i;
+            tmMCC_old = current_tmMCC;
+            hnn = cpNNtoHost(dnn);
+            save([opts.outputfolder  '_best_tmMCC.mat'],'hnn','opts','epoch_nr','hloss');
+            disp(['Saved new best weights to: ' opts.outputfolder]);
+       end
+
     end
 
 end
