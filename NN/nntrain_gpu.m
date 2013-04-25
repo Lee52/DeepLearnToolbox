@@ -180,8 +180,8 @@ for i = 1 : numepochs
     current_tmMCC = current_err(5); 
     
     sens05_prec05_mean = 0.5*current_ccsens+0.5*current_ccprec;
-    sens033_prec066_mean = (1/3)*current_ccsens+(2/3)*current_ccprec2;
-    sens066_prec033_mean = (2/3)*current_ccsens+(1/3)*current_ccprec2;
+    sens033_prec066_mean = (1/3)*current_ccsens+(2/3)*current_ccprec;
+    sens066_prec033_mean = (2/3)*current_ccsens+(1/3)*current_ccprec;
 
     
     if save_nn_flag && (current_err(4) > 0.6 && current_err(5) > 0.75 && sens05_prec05_mean) > 0.6 %criteria that all "best" models fulfill
