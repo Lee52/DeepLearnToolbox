@@ -184,7 +184,7 @@ for i = 1 : numepochs
     sens066_prec033_mean = (2/3)*current_ccsens+(1/3)*current_ccprec2;
 
     
-    if save_nn_flag && (current_err(4) > 0.6 && current_err(5) > 0.75 && sens05_prec05_mean > 0.6 %criteria that all "best" models fulfill
+    if save_nn_flag && (current_err(4) > 0.6 && current_err(5) > 0.75 && sens05_prec05_mean) > 0.6 %criteria that all "best" models fulfill
         if sens05_prec05_mean > sens05_prec05_mean_old
             epoch_nr = i;
             sens05_prec05_mean_old = sens05_prec05_mean;
