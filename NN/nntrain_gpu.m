@@ -23,6 +23,8 @@ m = size(htrain_x, 1);
 sens05_prec05_mean_old = 0;
 sens066_prec033_mean_old = 0;
 sens033_prec066_mean_old = 0;
+sens075_prec025_mean_old = 0;
+sens090_prec010_mean_old = 0;
 spMCC_old = 0;
 ccMCC_old = 0;
 tmMCC_old = 0;
@@ -182,6 +184,8 @@ for i = 1 : numepochs
     sens05_prec05_mean = 0.5*current_ccsens+0.5*current_ccprec;
     sens033_prec066_mean = (1/3)*current_ccsens+(2/3)*current_ccprec;
     sens066_prec033_mean = (2/3)*current_ccsens+(1/3)*current_ccprec;
+    sens075_prec025_mean = (3/4)*current_ccsens+(1/4)*current_ccprec;
+    sens090_prec010_mean = (9/10)*current_ccsens+(1/10)*current_ccprec;
 
     
     if save_nn_flag && (current_err(4) > 0.6 && current_err(5) > 0.75 && sens05_prec05_mean) > 0.6 %criteria that all "best" models fulfill
@@ -200,6 +204,22 @@ for i = 1 : numepochs
             save([opts.outputfolder  '_best_066sens_033prec.mat'],'hnn','opts','epoch_nr','hloss');
             disp(['Saved new best weights to: ' opts.outputfolder]);
         end
+
+        if sens075_prec025_mean > sens075_prec025_mean_old
+            epoch_nr = i;
+            sens075_prec025_mean_old = sens075_prec025_mean;
+            hnn = cpNNtoHost(dnn);
+            save([opts.outputfolder  '_best_075sens_025prec.mat'],'hnn','opts','epoch_nr','hloss');
+            disp(['Saved new best weights to: ' opts.outputfolder]);
+        end
+
+        if sens090_prec010_mean > sens090_prec010_mean_old
+            epoch_nr = i;
+            sens090_prec010_mean_old = sens090_prec010_mean;
+            hnn = cpNNtoHost(dnn);
+            save([opts.outputfolder  '_best_090sens_010prec.mat'],'hnn','opts','epoch_nr','hloss');
+            disp(['Saved new best weights to: ' opts.outputfolder]);
+        end
         
         if sens033_prec066_mean > sens033_prec066_mean_old
             epoch_nr = i;
@@ -208,6 +228,8 @@ for i = 1 : numepochs
             save([opts.outputfolder  '_best_033sens_066prec.mat'],'hnn','opts','epoch_nr','hloss');
             disp(['Saved new best weights to: ' opts.outputfolder]);
         end
+
+
        
         if current_spMCC > spMCC_old
             epoch_nr = i;
